@@ -1,0 +1,57 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+
+public class Filter {
+	
+	public static ArrayList<Path> files = new ArrayList<Path>();
+	
+	public static void main(String[] args){
+		String path = "C:/Users/CSoare/workspace/SpamFilter/data/train1/ham1.txt";
+		String file = "spam1.txt";
+		//getDirContent(path);// should be arg0]
+		//findFile(files, file);
+		readFile(path);
+	}
+	
+    public static void getDirContent(String directory){
+    	Path dir = Paths.get(directory);
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+		    for (Path file: stream) {
+		    	files.add(file);    
+		    }
+		} catch (IOException  x) {
+		    System.err.println(x);
+		}
+    }
+    
+    public static void findFile(ArrayList<Path> files, String file){
+    	for (Path p: files){
+			if(p.getFileName().toString().equals(file)){ 
+				//System.out.println("found " + p.getFileName().toString());
+				readFile(p.getFileName());
+			}	
+		}
+    }
+	    
+	public static void readFile(String source){
+		try (BufferedReader br = new BufferedReader(new FileReader(source))) {
+ 
+			String sCurrentLine;
+ 
+			while ((sCurrentLine = br.readLine()) != null) {
+				System.out.println(sCurrentLine);
+			}
+ 
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+	}
+
+}
