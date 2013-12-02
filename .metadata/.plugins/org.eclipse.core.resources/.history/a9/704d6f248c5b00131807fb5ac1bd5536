@@ -9,7 +9,7 @@ public class Filter {
 	public static File[] files;
 	public static int totalEmails;
 	public static int[] classesTotal;
-	public static float[] classP;
+	public static float classP;
 	
 	public static String path = "C://Users//CSoare//workspace//SpamFilter//data//train3//";
 	public static String file = "C://Users//CSoare//workspace//SpamFilter//data//train1//spam1.txt";
@@ -19,8 +19,7 @@ public class Filter {
 		files = getDirectory(path);
 		totalEmails = getTotalEmails(files);
 		classesTotal = getTrainingTotals(files);
-		//classP = getClassPriorProbability(classesTotal, totalEmails);
-
+		getClassPriorProbability(classesTotal, totalEmails));
 	
 	}
 	

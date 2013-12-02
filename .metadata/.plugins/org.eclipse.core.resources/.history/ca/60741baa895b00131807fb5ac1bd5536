@@ -8,10 +8,11 @@ public class Filter {
 	
 	public static File[] files;
 	public static int totalEmails;
+	public static int totalSpam;
+	public static int totalHam;
 	public static int[] classesTotal;
-	public static float[] classP;
 	
-	public static String path = "C://Users//CSoare//workspace//SpamFilter//data//train3//";
+	public static String path = "C://Users//CSoare//workspace//SpamFilter//data//train1//";
 	public static String file = "C://Users//CSoare//workspace//SpamFilter//data//train1//spam1.txt";
 	
 	public static void main(String[] args) throws IOException{ 
@@ -19,9 +20,10 @@ public class Filter {
 		files = getDirectory(path);
 		totalEmails = getTotalEmails(files);
 		classesTotal = getTrainingTotals(files);
-		//classP = getClassPriorProbability(classesTotal, totalEmails);
-
-	
+		float spamP = getClassPriorProbability(classesTotal[0], totalEmails);
+		float hamP = getClassPriorProbability(classesTotal[0], totalEmails);
+		//System.out.println("no. of spam " + classesTotal[0] + " totalEmails " + totalEmails);
+		System.out.println(spamP);
 	}
 	
 	public static int getTotalEmails(File[] files){		
@@ -43,15 +45,11 @@ public class Filter {
 		return classTotal;
 	}
 	
-	public static float[] getClassPriorProbability(int[] classEmails, int totalEmails){ 
-		float[] classProbabilities = new float[2];
-		for (int i = 0; i < classEmails.length ; i++){
-			classProbabilities[i] = (float) classEmails[i] / (float ) totalEmails ;
-		}
-		return classProbabilities ;	
+	public static float getClassPriorProbability(int classEmails, int totalEmails){ 
+		// getClassPriorProbability(classesTotal[0], totalEmails) for spam probability
+		// getClassPriorProbability(classesTotal[1], totalEmails) for ham probability
+		return (float) classEmails / (float ) totalEmails ;	
 	}
-	
-	//public static int get
 	
 	
 	

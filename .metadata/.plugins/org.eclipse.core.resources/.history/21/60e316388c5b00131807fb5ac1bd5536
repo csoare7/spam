@@ -19,8 +19,8 @@ public class Filter {
 		files = getDirectory(path);
 		totalEmails = getTotalEmails(files);
 		classesTotal = getTrainingTotals(files);
-		//classP = getClassPriorProbability(classesTotal, totalEmails);
-
+		classP = getClassPriorProbability(classesTotal, totalEmails);
+		System.out.println(classP[0]);
 	
 	}
 	
