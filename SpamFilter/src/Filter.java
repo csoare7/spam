@@ -18,27 +18,34 @@ public class Filter {
 	
 	public static HashMap < String, Integer> spamWordFrequency = new HashMap<String, Integer>();
 	public static HashMap < String, Integer> hamWordFrequency = new HashMap<String, Integer>();
+	public static HashMap < String, Double[] > vocabulary = new HashMap<String, Double[]>();
 	
-	public static String path = "C://Users//CSoare//workspace//SpamFilter//data//train1//";
-	public static String file = "C://Users//CSoare//workspace//SpamFilter//data//train1//ham2.txt";
+	//public static String path = "C://Users//CSoare//workspace//SpamFilter//data//train1//";
+	//public static String file = "C://Users//CSoare//workspace//SpamFilter//data//train1//ham2.txt";
+	
+	public static String path = "D://UNI//MachineLearning//spam//SpamFilter//data//train2";
+	public static String file = "D://UNI//MachineLearning//spam//SpamFilter//data//train1//ham2.txt";
+	
 	
 	public static void main(String[] args) throws IOException{ 
-		//findFile(getDirectory(path), file); // will be args[0], args[1]
+		trainBC();
+		for (String key : vocabulary.keySet()){
+			System.out.print(vocabulary.get(key)[0] + " ");System.out.print(vocabulary.get(key)[1] + " ");System.out.println(key);
+		}
+		
+
+
+	
+	}
+	
+	public static void trainBC(){
 		files = getDirectory(path);
 		totalEmails = getTotalEmails(files);
 		classEmails = getTrainingTotals(files);
-		//System.out.println("totalEmails" + totalEmails);
-		//System.out.println("spam: " + classEmails[0] + "ham: " + classEmails[1]);
-		classP = getClassPriorProbability(classEmails, totalEmails);
-		//System.out.println("spamP: " + classP[0] + " hamP: " + classP[1]);
-
+		classP = getClassPriorProbability(classEmails, totalEmails); //P(class)
 		sumHam = getWordFrequency(hamWordFrequency, files, "ham");
 		sumSpam = getWordFrequency(spamWordFrequency, files, "spam");
-		System.out.println("spam: "+ sumSpam);
-		System.out.println("ham: "+ sumHam);
-
-
-	
+		getConditionalProbability();
 	}
 	
 	public static int getTotalEmails(File[] files){	
@@ -84,10 +91,21 @@ public class Filter {
 		return count;
 	}
 	
-	public static float getConditionalProbability(HashMap <String, Integer> words, String word){
-		float p = 0;
-		return p;
-		
+	public static void getConditionalProbability(){
+		for (String word : vocabulary.keySet()){
+			if(spamWordFrequency.containsKey(word)){
+				vocabulary.get(word)[0] = ((double) spamWordFrequency.get(word) + 1 )/(vocabulary.size() + sumSpam)  ;
+			}
+			if(!spamWordFrequency.containsKey(word)){
+				vocabulary.get(word)[0] = ((double) 0 + 1 )/(vocabulary.size() + sumSpam)  ;
+			}
+			if(hamWordFrequency.containsKey(word)){
+				vocabulary.get(word)[1] = ((double) hamWordFrequency.get(word) + 1 )/(vocabulary.size() + sumHam)  ;
+			}
+			if(!hamWordFrequency.containsKey(word)){
+				vocabulary.get(word)[1] = ((double) 0 + 1 )/(vocabulary.size() + sumHam)  ;
+			}
+		}		
 	}
 	
 	
@@ -106,13 +124,18 @@ public class Filter {
 	public static void readFile(String source, HashMap<String, Integer> m){
 		try (BufferedReader br = new BufferedReader(new FileReader(source))) {
 			String currentLine;
-			ArrayList<String> words = new ArrayList<String>();
 			
 			while ((currentLine = br.readLine()) != null) {
 				String [] line = currentLine.split(" ");
 				for(int i =0; i<line.length;i++){
 				    Integer freq = m.get(line[i]);
 		            m.put(line[i], (freq == null) ? 1 : freq + 1); //neat code
+		            
+		            //add to vocabulary
+		            if ( !vocabulary.containsKey(line[i]) ) {
+		            	vocabulary.put(line[i], (new Double[] {0.0,0.0} ));
+		            }
+		            else{}//do nothing
 				}
 			}
 		} catch (IOException e) {
