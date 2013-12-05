@@ -7,5 +7,6 @@
 <listEntry value="1"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="Filter"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="D://UNI//MachineLearning//spam//SpamFilter//data//train4 D://UNI//MachineLearning//spam//SpamFilter//data//test4//3.txt"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="SpamFilter"/>
 </launchConfiguration>

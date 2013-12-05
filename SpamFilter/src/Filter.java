@@ -16,19 +16,21 @@ public class Filter {
 	public static int[] classEmails; // number of emails per class, classEmails[0] : no. of spam, classEmails[1] : no. of ham
 	public static float[] classP;
 	
-	public static HashMap < String, Integer> spamWordFrequency = new HashMap<String, Integer>();
-	public static HashMap < String, Integer> hamWordFrequency = new HashMap<String, Integer>();
+	public static HashMap < String, Integer > spamWordFrequency = new HashMap<String, Integer>();
+	public static HashMap < String, Integer > hamWordFrequency = new HashMap<String, Integer>();
 	public static HashMap < String, Double[] > vocabulary = new HashMap<String, Double[]>();
 	
 	
 	//public static String path = "C://Users//CSoare//workspace//SpamFilter//data//train1//";
 	//public static String file = "C://Users//CSoare//workspace//SpamFilter//data//train1//ham2.txt";
 	
-	public static String path = "D://UNI//MachineLearning//spam//SpamFilter//data//train2";
-	public static String file = "D://UNI//MachineLearning//spam//SpamFilter//data//test2//2.txt";
+	public static String path;// = "D://UNI//MachineLearning//spam//SpamFilter//data//train4";
+	public static String file;// = "D://UNI//MachineLearning//spam//SpamFilter//data//test4//3.txt";
 	
 	
 	public static void main(String[] args) throws IOException{ 
+		path = args[0];
+		file = args[1];
 		trainBC();
 //		for (String key : vocabulary.keySet()){
 //			System.out.print(vocabulary.get(key)[0] + " ");System.out.print(vocabulary.get(key)[1] + " ");System.out.println(key);
@@ -56,20 +58,29 @@ public class Filter {
 		        
 				}
 			}
-			
+			//System.out.println(countMail);
 			for(String key : countMail.keySet())
-			{				
+			{		
+				//System.out.println(key);
 				if (vocabulary.get(key) == null){
 					  //pSpam *= 1;   
 					  //pHam *= 1;
+					//System.out.println(vocabulary.get(key));
 				}
 				else{
-					
-		            //pSpam *= Math.pow(vocabulary.get(key)[0],countMail.get(key).intValue());
-		            pSpam += countMail.get(key).intValue()*Math.log(vocabulary.get(key)[0]);
-					//pHam *= Math.pow(vocabulary.get(key)[1],countMail.get(key).intValue());
-		            pHam += countMail.get(key).intValue()*Math.log(vocabulary.get(key)[1]);
-
+					//System.out.println(key);
+					//System.out.println(vocabulary.get(key);
+					//System.out.println("priorSpam " + pSpam);
+					//System.out.println("priorHam " +pHam);
+					//System.out.println(vocabulary.get(key)[0]);
+					//System.out.println(vocabulary.get(key)[1]);
+					//System.out.println(Math.log(pSpam * vocabulary.get(key)[0]));
+		            pSpam += countMail.get(key)*Math.log(vocabulary.get(key)[0]);
+		            //System.out.println(Math.log(vocabulary.get(key)[0]));
+		            pHam += countMail.get(key)*Math.log(vocabulary.get(key)[1]);
+		            //System.out.println(Math.log(vocabulary.get(key)[1]));
+		        	//System.out.println(pSpam);
+					//System.out.println(pHam);
 				}
 			}
 			
@@ -100,6 +111,7 @@ public class Filter {
 		classP = getClassPriorProbability(classEmails, totalEmails); //P(class)
 		sumHam = getWordFrequency(hamWordFrequency, files, "ham");
 		sumSpam = getWordFrequency(spamWordFrequency, files, "spam");
+		//System.out.println(sumHam);System.out.println(sumSpam);
 		getConditionalProbability();
 	}
 	
@@ -131,8 +143,6 @@ public class Filter {
 		return classProbabilities;	
 	}
 	
-	
-	
 	public static int getWordFrequency(HashMap <String, Integer> words, File[] files, String type){	
 		int count = 0;
 		for (File f : files) {
@@ -140,10 +150,13 @@ public class Filter {
 				readFile(f.toString(),words);
 			}
 		}
+		System.out.println(words);
 		for (String key : words.keySet()){
 			count += words.get(key);
 		}
+		//System.out.println(count);
 		return count;
+		
 	}
 	
 	public static void getConditionalProbability(){
@@ -187,6 +200,7 @@ public class Filter {
 			while ((currentLine = br.readLine()) != null) {
 				String [] line = currentLine.split(" ");
 				for(int i =0; i<line.length;i++){
+					//System.out.println(line[i]);
 				    Integer freq = m.get(line[i]);
 		            m.put(line[i], (freq == null) ? 1 : freq + 1); //neat code
 		            
