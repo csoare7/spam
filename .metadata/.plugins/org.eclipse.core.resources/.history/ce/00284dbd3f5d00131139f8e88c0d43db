@@ -24,8 +24,8 @@ public class Filter {
 	//public static String path = "C://Users//CSoare//workspace//SpamFilter//data//train1//";
 	//public static String file = "C://Users//CSoare//workspace//SpamFilter//data//train1//ham2.txt";
 	
-	public static String path = "D://UNI//MachineLearning//spam//SpamFilter//data//train2";
-	public static String file = "D://UNI//MachineLearning//spam//SpamFilter//data//test2//2.txt";
+	public static String path = "D://UNI//MachineLearning//spam//SpamFilter//data//sampletrain";
+	public static String file = "D://UNI//MachineLearning//spam//SpamFilter//data//sampletest//1.txt";
 	
 	
 	public static void main(String[] args) throws IOException{ 
@@ -60,8 +60,8 @@ public class Filter {
 			for(String key : countMail.keySet())
 			{				
 				if (vocabulary.get(key) == null){
-					  //pSpam *= 1;   
-					  //pHam *= 1;
+					  pSpam *= 1;   
+					  pHam *= 1;
 				}
 				else{
 					
@@ -73,6 +73,8 @@ public class Filter {
 				}
 			}
 			
+			System.out.println("spam: "+pSpam);
+			System.out.println("ham: "+pHam);
 			System.out.println("ham - spam: " + (pHam - pSpam));
 			
 			if(pSpam>pHam)

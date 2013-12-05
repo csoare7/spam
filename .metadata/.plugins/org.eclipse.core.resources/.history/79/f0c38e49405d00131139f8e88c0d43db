@@ -24,8 +24,8 @@ public class Filter {
 	//public static String path = "C://Users//CSoare//workspace//SpamFilter//data//train1//";
 	//public static String file = "C://Users//CSoare//workspace//SpamFilter//data//train1//ham2.txt";
 	
-	public static String path = "D://UNI//MachineLearning//spam//SpamFilter//data//train2";
-	public static String file = "D://UNI//MachineLearning//spam//SpamFilter//data//test2//2.txt";
+	public static String path = "D://UNI//MachineLearning//spam//SpamFilter//data//train3cool";
+	public static String file = "D://UNI//MachineLearning//spam//SpamFilter//data//test3cool//1.txt";
 	
 	
 	public static void main(String[] args) throws IOException{ 

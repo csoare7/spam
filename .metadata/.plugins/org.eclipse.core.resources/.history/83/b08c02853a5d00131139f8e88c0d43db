@@ -25,15 +25,14 @@ public class Filter {
 	//public static String file = "C://Users//CSoare//workspace//SpamFilter//data//train1//ham2.txt";
 	
 	public static String path = "D://UNI//MachineLearning//spam//SpamFilter//data//train2";
-	public static String file = "D://UNI//MachineLearning//spam//SpamFilter//data//test2//2.txt";
+	public static String file = "D://UNI//MachineLearning//spam//SpamFilter//data//train1//ham2.txt";
 	
 	
 	public static void main(String[] args) throws IOException{ 
 		trainBC();
-//		for (String key : vocabulary.keySet()){
-//			System.out.print(vocabulary.get(key)[0] + " ");System.out.print(vocabulary.get(key)[1] + " ");System.out.println(key);
-//		}
-		classify();
+		for (String key : vocabulary.keySet()){
+			System.out.print(vocabulary.get(key)[0] + " ");System.out.print(vocabulary.get(key)[1] + " ");System.out.println(key);
+		}
 		
 
 
@@ -44,43 +43,23 @@ public class Filter {
 		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 			HashMap < String, Integer> countMail = new HashMap<String, Integer>();
 			String currentLine;	
-			double pSpam = Math.log(classP[0]);
-			double pHam = Math.log(classP[1]);
+			double pSpam = 1.0;
+			double pHam = 1.0;
+			double aux = 0.0;
 			
 			while ((currentLine = br.readLine()) != null) {
 				String [] line = currentLine.split(" ");
 				for(int i = 0; i < line.length; i++){
-					
-					Integer freq = countMail.get(line[i]);
-		            countMail.put(line[i], (freq == null) ? 1 : freq + 1);
+			
+					aux = vocabulary.get(line[i])[0];
+		            pSpam = pSpam * aux ^ countMail.get(line[i]).doubleValue();
+		            
+					aux = vocabulary.get(line[i])[1];
+		            pSpam = pSpam * aux ^ countMail.get(line[i]);
+		            
 		        
 				}
 			}
-			
-			for(String key : countMail.keySet())
-			{				
-				if (vocabulary.get(key) == null){
-					  //pSpam *= 1;   
-					  //pHam *= 1;
-				}
-				else{
-					
-		            //pSpam *= Math.pow(vocabulary.get(key)[0],countMail.get(key).intValue());
-		            pSpam += countMail.get(key).intValue()*Math.log(vocabulary.get(key)[0]);
-					//pHam *= Math.pow(vocabulary.get(key)[1],countMail.get(key).intValue());
-		            pHam += countMail.get(key).intValue()*Math.log(vocabulary.get(key)[1]);
-
-				}
-			}
-			
-			System.out.println("ham - spam: " + (pHam - pSpam));
-			
-			if(pSpam>pHam)
-				System.out.println("spam");
-			else
-				System.out.println("ham");
-				
-			
 		} catch (IOException e) {
 			e.printStackTrace();
 		} 

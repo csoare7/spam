@@ -44,7 +44,7 @@ public class Filter {
 		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 			HashMap < String, Integer> countMail = new HashMap<String, Integer>();
 			String currentLine;	
-			double pSpam = Math.log(classP[0]);
+			double pSpam = math.BigDecimal.log(classP[0]);
 			double pHam = Math.log(classP[1]);
 			
 			while ((currentLine = br.readLine()) != null) {
@@ -73,7 +73,7 @@ public class Filter {
 				}
 			}
 			
-			System.out.println("ham - spam: " + (pHam - pSpam));
+			System.out.println("ham - spam: " + Math.round((pHam - pSpam)));
 			
 			if(pSpam>pHam)
 				System.out.println("spam");

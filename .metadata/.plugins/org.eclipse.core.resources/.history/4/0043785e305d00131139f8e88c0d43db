@@ -20,78 +20,23 @@ public class Filter {
 	public static HashMap < String, Integer> hamWordFrequency = new HashMap<String, Integer>();
 	public static HashMap < String, Double[] > vocabulary = new HashMap<String, Double[]>();
 	
-	
 	//public static String path = "C://Users//CSoare//workspace//SpamFilter//data//train1//";
 	//public static String file = "C://Users//CSoare//workspace//SpamFilter//data//train1//ham2.txt";
 	
 	public static String path = "D://UNI//MachineLearning//spam//SpamFilter//data//train2";
-	public static String file = "D://UNI//MachineLearning//spam//SpamFilter//data//test2//2.txt";
+	public static String file = "D://UNI//MachineLearning//spam//SpamFilter//data//train1//ham2.txt";
 	
 	
 	public static void main(String[] args) throws IOException{ 
 		trainBC();
-//		for (String key : vocabulary.keySet()){
-//			System.out.print(vocabulary.get(key)[0] + " ");System.out.print(vocabulary.get(key)[1] + " ");System.out.println(key);
-//		}
-		classify();
+		for (String key : vocabulary.keySet()){
+			System.out.print(vocabulary.get(key)[0] + " ");System.out.print(vocabulary.get(key)[1] + " ");System.out.println(key);
+		}
 		
 
 
 	
 	}
-	
-	public static void classify(){
-		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-			HashMap < String, Integer> countMail = new HashMap<String, Integer>();
-			String currentLine;	
-			double pSpam = Math.log(classP[0]);
-			double pHam = Math.log(classP[1]);
-			
-			while ((currentLine = br.readLine()) != null) {
-				String [] line = currentLine.split(" ");
-				for(int i = 0; i < line.length; i++){
-					
-					Integer freq = countMail.get(line[i]);
-		            countMail.put(line[i], (freq == null) ? 1 : freq + 1);
-		        
-				}
-			}
-			
-			for(String key : countMail.keySet())
-			{				
-				if (vocabulary.get(key) == null){
-					  //pSpam *= 1;   
-					  //pHam *= 1;
-				}
-				else{
-					
-		            //pSpam *= Math.pow(vocabulary.get(key)[0],countMail.get(key).intValue());
-		            pSpam += countMail.get(key).intValue()*Math.log(vocabulary.get(key)[0]);
-					//pHam *= Math.pow(vocabulary.get(key)[1],countMail.get(key).intValue());
-		            pHam += countMail.get(key).intValue()*Math.log(vocabulary.get(key)[1]);
-
-				}
-			}
-			
-			System.out.println("ham - spam: " + (pHam - pSpam));
-			
-			if(pSpam>pHam)
-				System.out.println("spam");
-			else
-				System.out.println("ham");
-				
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
-		
-	
-	}
-
-	
-	/////////////////////////////////////////////////////////////
-	//					TRAINING BAYESIAN CLASSIFIER    	   //
-	/////////////////////////////////////////////////////////////
 	
 	public static void trainBC(){
 		files = getDirectory(path);
@@ -101,11 +46,6 @@ public class Filter {
 		sumHam = getWordFrequency(hamWordFrequency, files, "ham");
 		sumSpam = getWordFrequency(spamWordFrequency, files, "spam");
 		getConditionalProbability();
-	}
-	
-	public static int getTotalEmails(File[] files){	
-		//spam + ham
-		return files.length;	
 	}
 	
 	public static int[] getTrainingTotals(File[] files){
@@ -162,10 +102,6 @@ public class Filter {
 			}
 		}		
 	}
-	
-/////////////////////////////////////////////////////////////
-//				END TRAINING BAYESIAN CLASSIFIER       	   //
-/////////////////////////////////////////////////////////////
 	
 	
 	
