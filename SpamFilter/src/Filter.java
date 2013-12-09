@@ -1,15 +1,26 @@
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Properties;
+
+import org.apache.commons.mail.util.MimeMessageParser;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
+
+import javax.mail.*;
+import javax.mail.internet.MimeMessage;
+
 
 public class Filter {
 	
 	final static int numberOfClasses = 2; 
-	public static int sumHam, sumSpam = 0;
+	public static int[] sumHam, sumSpam = new int[]{0 ,0};
 	
 	public static File[] files;
 	public static int totalEmails;
@@ -18,85 +29,246 @@ public class Filter {
 	
 	public static HashMap < String, Integer > spamWordFrequency = new HashMap<String, Integer>();
 	public static HashMap < String, Integer > hamWordFrequency = new HashMap<String, Integer>();
+	
+	public static HashMap < String, Integer > spamSubjFrequency = new HashMap<String, Integer>();
+	public static HashMap < String, Integer > hamSubjFrequency = new HashMap<String, Integer>();
+	
 	public static HashMap < String, Double[] > vocabulary = new HashMap<String, Double[]>();
 	
+	public static HashMap < String, Double[] > vocabularySubj = new HashMap<String, Double[]>();
 	
 	//public static String path = "C://Users//CSoare//workspace//SpamFilter//data//train1//";
 	//public static String file = "C://Users//CSoare//workspace//SpamFilter//data//train1//ham2.txt";
 	
-	public static String path;// = "D://UNI//MachineLearning//spam//SpamFilter//data//train4";
-	public static String file;// = "D://UNI//MachineLearning//spam//SpamFilter//data//test4//3.txt";
+	public static String path = "D://UNI//MachineLearning//spam//SpamFilter//data//train";
+	public static String file = "D://UNI//MachineLearning//spam//SpamFilter//data//train//spam104.txt";
+	
+	//public static File file1 = new File("D://UNI//MachineLearning//spam//SpamFilter//data//test4//ham1547.txt");
+	
+	public MimeMessageParser messageParser;
+	
+	public static ArrayList<String> a;
 	
 	
-	public static void main(String[] args) throws IOException{ 
-		path = args[0];
-		file = args[1];
-		trainBC();
-//		for (String key : vocabulary.keySet()){
-//			System.out.print(vocabulary.get(key)[0] + " ");System.out.print(vocabulary.get(key)[1] + " ");System.out.println(key);
-//		}
-		classify();
+	public static void main(String[] args) throws Exception{ 
 		
-
-
+		
 	
+		
+		
+		//path = args[0];
+		///file = args[1];
+		trainBC();
+		classify();
+	
+		//System.out.println(a);
+		
+		
+//		//// READ FILE ///
+//		Properties props = new Properties();
+//		FileInputStream fis = null;
+//		Session session = Session.getDefaultInstance(props, null);
+//		try {
+//			fis = new FileInputStream(file1);
+//			//fis.close();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//		///// END READ ////
+//		MimeMessageParser m = new MimeMessageParser(new MimeMessage(session, fis));
+//		
+//		// PARSE & GET SUBJECT & GET BODY
+//		m.parse();
+		
+		// GET SUBJECT
+		
+//		String[] subject = m.getSubject().toString().replaceAll("\\P{L}", " ").split(" ");
+//		for (int i = 0; i < subject.length; i++){
+//			if (subject[i].length() > 3){
+//				//add to hash/ calculate probability?
+//				//System.out.println(subject[i]);
+//			}
+//			//System.out.println(body[i]);
+//		}
+//		System.out.println(m.getFrom());
+//		//// GET HTML CONTENT //////
+//		
+//		if (m.hasHtmlContent()){
+//			String[] body = Jsoup.parse(m.getHtmlContent()).text().replaceAll("\\P{L}", " ").split(" ");
+//			for (int i = 0; i < body.length; i++){
+//				//System.out.println(body[i]);
+//				if (body[i].length() > 3){
+//					//add to hash/ calculate probability?
+//					//System.out.println(body[i]);
+//				}
+//				
+//			}
+//		}
+//		
+//		// GET PLAIN CONTENT /////////
+//		
+//		else if (m.hasPlainContent()){
+//			String[] body = (m.getPlainContent()).replaceAll("\\P{L}", " ").split(" ");
+//			for (int i = 0; i < body.length; i++){
+//				//System.out.println(body[i]);
+//				if (body[i].length() > 3){
+//					//add to hash/ calculate probability?
+//					//System.out.println(body[i]);
+//					
+//				}
+//			}
+//			
+//		}
+		
+		
+		
+		
+		
 	}
 	
-	public static void classify(){
-		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-			HashMap < String, Integer> countMail = new HashMap<String, Integer>();
-			String currentLine;	
-			double pSpam = Math.log(classP[0]);
-			double pHam = Math.log(classP[1]);
-			
-			while ((currentLine = br.readLine()) != null) {
-				String [] line = currentLine.split(" ");
-				for(int i = 0; i < line.length; i++){
-					
-					Integer freq = countMail.get(line[i]);
-		            countMail.put(line[i], (freq == null) ? 1 : freq + 1);
-		        
-				}
+	
+	
+	
+	
+	public static void classify() throws Exception{
+
+			HashMap < String, Integer> countSubject = new HashMap<String, Integer>();	
+			HashMap < String, Integer> countBody = new HashMap<String, Integer>();
+			//// READ FILE ///
+			Properties props = System.getProperties();
+			props.setProperty("mail.mime.base64.ignoreerrors", "true");
+			props.setProperty("mail.mime.decodeparameters", "true");
+			FileInputStream fis = null;
+			Session session = Session.getDefaultInstance(props, null);
+			try {
+				fis = new FileInputStream(file);
+				//fis.close();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			//System.out.println(countMail);
-			for(String key : countMail.keySet())
-			{		
-				//System.out.println(key);
-				if (vocabulary.get(key) == null){
-					  //pSpam *= 1;   
-					  //pHam *= 1;
-					//System.out.println(vocabulary.get(key));
+			///// END READ ////
+			
+			double pSpamSubj = Math.log(classP[0]);
+			double pHamSubj = Math.log(classP[1]);
+			double pSpamBody = Math.log(classP[0]);
+			double pHamBody = Math.log(classP[1]);
+			
+			MimeMessage mess = new MimeMessage(session, fis);
+			
+			if (mess.getContentType().contains("CHINESEBIG5") || mess.getContentType().contains("DEFAULT_CHARSET")){
+				pSpamSubj= -60;
+				pSpamBody= -60;
+				pHamSubj= -3000;
+				pHamBody= -3000;
+			}
+			
+			else{
+				MimeMessageParser message = new MimeMessageParser(mess);
+				// PARSE & GET SUBJECT & GET BODY
+				message.parse();
+				
+				 //GET SUBJECT
+				if (message.getSubject() == null){
+					pSpamSubj=0;
+					pHamSubj=0;
 				}
 				else{
-					//System.out.println(key);
-					//System.out.println(vocabulary.get(key);
-					//System.out.println("priorSpam " + pSpam);
-					//System.out.println("priorHam " +pHam);
-					//System.out.println(vocabulary.get(key)[0]);
-					//System.out.println(vocabulary.get(key)[1]);
-					//System.out.println(Math.log(pSpam * vocabulary.get(key)[0]));
-		            pSpam += countMail.get(key)*Math.log(vocabulary.get(key)[0]);
-		            //System.out.println(Math.log(vocabulary.get(key)[0]));
-		            pHam += countMail.get(key)*Math.log(vocabulary.get(key)[1]);
-		            //System.out.println(Math.log(vocabulary.get(key)[1]));
-		        	//System.out.println(pSpam);
-					//System.out.println(pHam);
+					String[] subject = message.getSubject().toString().replaceAll("\\P{L}", " ").split(" ");
+					for (int i = 0; i < subject.length; i++){
+						if (subject[i].length() > 3){
+								Integer freq = countSubject.get(subject[i]);
+								countSubject.put(subject[i], (freq == null) ? 1 : freq + 1);				            
+							
+						}
+					}
+					
+					for(String key : countSubject.keySet()) {		
+						if (vocabularySubj.get(key) == null){
+						}
+						else{
+				            pSpamSubj += countSubject.get(key)*Math.log(vocabularySubj.get(key)[0]);
+				            pHamSubj += countSubject.get(key)*Math.log(vocabularySubj.get(key)[1]);
+						}
+					}
 				}
-			}
-			
-			System.out.println("ham - spam: " + (pHam - pSpam));
-			
-			if(pSpam>pHam)
-				System.out.println("spam");
-			else
-				System.out.println("ham");
+					// GET BODY
+					//// GET HTML CONTENT //////
+				if (message.hasHtmlContent()){
+					String[] bodyText = Jsoup.parse(message.getHtmlContent()).text().replaceAll("\\P{L}", " ").split(" ");
+						for (int i = 0; i < bodyText.length; i++){
+							if (bodyText[i].length() > 3){
+								Integer freq = countBody.get(bodyText[i]);
+								countBody.put(bodyText[i], (freq == null) ? 1 : freq + 1); //neat code				           
+							}
+							else {}				
+						}
+						for(String key : countBody.keySet()) {		
+							if (vocabulary.get(key) == null){
+							}
+							else{
+					            pSpamBody += countBody.get(key)*Math.log(vocabulary.get(key)[0]);
+					            pHamBody += countBody.get(key)*Math.log(vocabulary.get(key)[1]);
+							}
+						}
+				}
+							
+							
+				// GET PLAIN CONTENT /////////
+							
+				else if (message.hasPlainContent()){
+					String[] bodyText = (message.getPlainContent()).replaceAll("\\P{L}", " ").split(" ");
+						for (int i = 0; i < bodyText.length; i++){
+							//System.out.println(body[i]);
+							if (bodyText[i].length() > 3){
+								Integer freq = countBody.get(bodyText[i]);
+								countBody.put(bodyText[i], (freq == null) ? 1 : freq + 1); //neat code				            
+								
+							 }
+    						 else {}	
+						}
+						for(String key : countBody.keySet()) {		
+							if (vocabulary.get(key) == null){
+							}
+							else{
+					            pSpamBody += countBody.get(key)*Math.log(vocabulary.get(key)[0]);
+					            pHamBody += countBody.get(key)*Math.log(vocabulary.get(key)[1]);
+							}
+						}
+								
+				}			
+				else{
+					pSpamBody=0;
+					pHamBody=0;
+				}
 				
+			}
+				/// 
+//			System.out.println("pSpamSubj" + pSpamSubj);
+//			System.out.println("pHamSubj" + pHamSubj);
+//			System.out.println("pSpamBody" + pSpamBody);
+//			System.out.println("pHamBody" + pHamBody);
+//			System.out.println();
 			
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
+			
+			
+//			if(pSpamSubj>pHamSubj)
+//				System.out.println("spamSubj");
+//			else
+//				System.out.println("hamSubj");
+//				
+//			if(pSpamBody>pHamBody)
+//				System.out.println("spamBody");
+//			else
+//				System.out.println("hamBody");
+			
+			double spamTot = pSpamSubj+pSpamBody;
+			double hamTot = pHamSubj+pHamBody;
+			
+			if(hamTot>spamTot)
+				System.out.println("ham");
+			else
+				System.out.println("spam");
 		
-	
 	}
 
 	
@@ -104,14 +276,13 @@ public class Filter {
 	//					TRAINING BAYESIAN CLASSIFIER    	   //
 	/////////////////////////////////////////////////////////////
 	
-	public static void trainBC(){
+	public static void trainBC() throws Exception{
 		files = getDirectory(path);
 		totalEmails = getTotalEmails(files);
 		classEmails = getTrainingTotals(files);
-		classP = getClassPriorProbability(classEmails, totalEmails); //P(class)
-		sumHam = getWordFrequency(hamWordFrequency, files, "ham");
-		sumSpam = getWordFrequency(spamWordFrequency, files, "spam");
-		//System.out.println(sumHam);System.out.println(sumSpam);
+		classP = getClassPriorProbability(classEmails, totalEmails);   //P(class)
+		sumHam = getWordFrequency(hamWordFrequency, hamSubjFrequency, files, "ham");
+		sumSpam = getWordFrequency(spamWordFrequency, spamSubjFrequency, files, "spam");
 		getConditionalProbability();
 	}
 	
@@ -143,37 +314,53 @@ public class Filter {
 		return classProbabilities;	
 	}
 	
-	public static int getWordFrequency(HashMap <String, Integer> words, File[] files, String type){	
-		int count = 0;
+	public static int[] getWordFrequency(HashMap <String, Integer> body, HashMap <String, Integer> subj, File[] files, String type ) throws Exception{	
+		int count[] = {0,0};
 		for (File f : files) {
 			if(f.getName().startsWith(type)){
-				readFile(f.toString(),words);
+				readFile(f,body, subj);
 			}
 		}
-		System.out.println(words);
-		for (String key : words.keySet()){
-			count += words.get(key);
-		}
-		//System.out.println(count);
-		return count;
 		
+		for (String key : body.keySet()){
+			count[1] += body.get(key);
+		}
+		for (String key : subj.keySet()){
+			count[0] += subj.get(key);
+		}
+		return count;
 	}
 	
 	public static void getConditionalProbability(){
-		for (String word : vocabulary.keySet()){
-			if(spamWordFrequency.containsKey(word)){
-				vocabulary.get(word)[0] = ((double) spamWordFrequency.get(word) + 1 )/(vocabulary.size() + sumSpam)  ;
+		for (String word : vocabularySubj.keySet()){
+			if(spamSubjFrequency.containsKey(word)){
+				vocabularySubj.get(word)[0] = ((double) spamSubjFrequency.get(word) + 1 )/(vocabularySubj.size() + sumSpam[0])  ;
 			}
-			if(!spamWordFrequency.containsKey(word)){
-				vocabulary.get(word)[0] = ((double) 0 + 1 )/(vocabulary.size() + sumSpam)  ;
+			if(!spamSubjFrequency.containsKey(word)){
+				vocabularySubj.get(word)[0] = ((double) 0 + 1 )/(vocabularySubj.size() + sumSpam[0])  ;
 			}
-			if(hamWordFrequency.containsKey(word)){
-				vocabulary.get(word)[1] = ((double) hamWordFrequency.get(word) + 1 )/(vocabulary.size() + sumHam)  ;
+			if(hamSubjFrequency.containsKey(word)){
+				vocabularySubj.get(word)[1] = ((double) hamSubjFrequency.get(word) + 1 )/(vocabularySubj.size() + sumHam[0])  ;
 			}
-			if(!hamWordFrequency.containsKey(word)){
-				vocabulary.get(word)[1] = ((double) 0 + 1 )/(vocabulary.size() + sumHam)  ;
+			if(!hamSubjFrequency.containsKey(word)){
+				vocabularySubj.get(word)[1] = ((double) 0 + 1 )/(vocabularySubj.size() + sumHam[0])  ;
 			}
 		}		
+		
+		for (String word : vocabulary.keySet()){
+			if(spamWordFrequency.containsKey(word)){
+				vocabulary.get(word)[0] = ((double) spamWordFrequency.get(word) + 1 )/(vocabulary.size() + sumSpam[1])  ;
+			}
+			if(!spamWordFrequency.containsKey(word)){
+				vocabulary.get(word)[0] = ((double) 0 + 1 )/(vocabulary.size() + sumSpam[1])  ;
+			}
+			if(hamWordFrequency.containsKey(word)){
+				vocabulary.get(word)[1] = ((double) hamWordFrequency.get(word) + 1 )/(vocabulary.size() + sumHam[1])  ;
+			}
+			if(!hamWordFrequency.containsKey(word)){
+				vocabulary.get(word)[1] = ((double) 0 + 1 )/(vocabulary.size() + sumHam[1])  ;
+			}
+		}	
 	}
 	
 /////////////////////////////////////////////////////////////
@@ -193,36 +380,141 @@ public class Filter {
     	} );
     }
       
-	public static void readFile(String source, HashMap<String, Integer> m){
-		try (BufferedReader br = new BufferedReader(new FileReader(source))) {
-			String currentLine;
-			
-			while ((currentLine = br.readLine()) != null) {
-				String [] line = currentLine.split(" ");
-				for(int i =0; i<line.length;i++){
-					//System.out.println(line[i]);
-				    Integer freq = m.get(line[i]);
-		            m.put(line[i], (freq == null) ? 1 : freq + 1); //neat code
-		            
-		            //add to vocabulary
-		            if ( !vocabulary.containsKey(line[i]) ) {
-		            	vocabulary.put(line[i], (new Double[] {0.0,0.0} ));
-		            }
-		            else{}//do nothing
-				}
+	public static void readFile(File source, HashMap<String, Integer> body, HashMap<String, Integer> subj) throws Exception{
+			//// READ FILE ///
+			Properties props = System.getProperties();
+			props.setProperty("mail.mime.base64.ignoreerrors", "true");
+			props.setProperty("mail.mime.decodeparameters", "true");
+			FileInputStream fis = null;
+			Session session = Session.getDefaultInstance(props, null);
+			try {
+				fis = new FileInputStream(source);
+				//fis.close();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
+			///// END READ ////
+			
+			MimeMessage mess = new MimeMessage(session, fis);
+			
+			if (mess.getContentType().contains("CHINESEBIG5") || mess.getContentType().contains("DEFAULT_CHARSET")){
+				return;
+			}
+			else{
+				MimeMessageParser message = new MimeMessageParser(mess);
+				// PARSE & GET SUBJECT & GET BODY
+				message.parse();
+				
+				 //GET SUBJECT
+				if (message.getSubject() == null){
+					//System.out.println("null");
+				}
+				else{
+					String[] subject = message.getSubject().toString().replaceAll("\\P{L}", " ").split(" ");
+					for (int i = 0; i < subject.length; i++){
+						if (subject[i].length() > 3){
+							//add to hash/ calculate probability?
+							//System.out.println(subject[i]);
+							//System.out.println(subject[i]);
+							 Integer freq = subj.get(subject[i]);
+							 subj.put(subject[i], (freq == null) ? 1 : freq + 1); //neat code				            
+					            //add to vocabulary
+							 if ( !vocabularySubj.containsKey(subject[i]) ) {
+								 vocabularySubj.put(subject[i], (new Double[] {0.0,0.0} ));
+							 }
+								 else {}
+							
+						}
+					}
+				}
+				////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				
+				
+			//// GET HTML CONTENT //////
+				
+				if (message.hasHtmlContent()){
+					String[] bodyText = Jsoup.parse(message.getHtmlContent()).text().replaceAll("\\P{L}", " ").split(" ");
+					for (int i = 0; i < bodyText.length; i++){
+						//System.out.println(body[i]);
+						if (bodyText[i].length() > 3){
+						//add to hash/ calculate probability?
+							//System.out.println(body[i]);
+							 Integer freq = body.get(bodyText[i]);
+							 body.put(bodyText[i], (freq == null) ? 1 : freq + 1); //neat code				            
+					            //add to vocabulary
+							 if ( !vocabulary.containsKey(bodyText[i]) ) {
+								 vocabulary.put(bodyText[i], (new Double[] {0.0,0.0} ));
+							 }
+								 else {}
+							
+						}
+						
+					}
+				}
+				
+				// GET PLAIN CONTENT /////////
+				
+				else if (message.hasPlainContent()){
+					String[] bodyText = (message.getPlainContent()).replaceAll("\\P{L}", " ").split(" ");
+					for (int i = 0; i < bodyText.length; i++){
+						//System.out.println(body[i]);
+						if (bodyText[i].length() > 3){
+							//add to hash/ calculate probability?
+							//System.out.println(body[i]);
+							Integer freq = body.get(bodyText[i]);
+							 body.put(bodyText[i], (freq == null) ? 1 : freq + 1); //neat code				            
+					            //add to vocabulary
+							 if ( !vocabulary.containsKey(bodyText[i]) ) {
+								 vocabulary.put(bodyText[i], (new Double[] {0.0,0.0} ));
+							 }
+								 else {}
+				
+						}
+					}
+					
+				}
+				else{
+				
+				}
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				
+			}
+		
+		
+//		try (BufferedReader br = new BufferedReader(new FileReader(source))) {
+//			String currentLine;
+//			
+//			while ((currentLine = br.readLine()) != null) {
+//				String [] line = currentLine.split(" ");
+//				for(int i =0; i<line.length;i++){
+//					//System.out.println(line[i]);
+//				    Integer freq = m.get(line[i]);
+//		            m.put(line[i], (freq == null) ? 1 : freq + 1); //neat code
+//		            
+//		            //add to vocabulary
+//		            if ( !vocabulary.containsKey(line[i]) ) {
+//		            	vocabulary.put(line[i], (new Double[] {0.0,0.0} ));
+//		            }
+//		            else{}//do nothing
+//				}
+//			}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} 
+		
+		
+		
+		
+		
+		
 	}
-	
-	/*
-    public static void findFile(File[] files, String file) throws IOException{
-    	File fi = new File(file);
-    	for (File f : files){
-    		if((f.getCanonicalPath().equals(fi.getCanonicalPath())))
-    			readFile(f.getCanonicalPath());
-		}
-    }
-	*/
 }
