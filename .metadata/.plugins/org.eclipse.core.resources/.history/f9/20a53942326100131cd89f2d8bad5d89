@@ -24,7 +24,7 @@ public class Filter {
 	public static File[] files;
 	public static int totalEmails;
 	public static int[] classEmails; // number of emails per class, classEmails[0] : no. of spam, classEmails[1] : no. of ham
-	public static float[] classP = new float[] {0, 0};
+	public static float[] classP;
 	
 	public static HashMap < String, Integer > spamWordFrequency = new HashMap<String, Integer>();
 	public static HashMap < String, Integer > hamWordFrequency = new HashMap<String, Integer>();
@@ -37,7 +37,7 @@ public class Filter {
 	public static HashMap < String, Double[] > vocabularySubj = new HashMap<String, Double[]>();
 	
 	public static String path = "D://UNI//MachineLearning//spam//SpamFilter//data//train";
-	public static String file = "D://UNI//MachineLearning//spam//SpamFilter//data//sampletest.tar//1.txt";
+	public static String file = "D://UNI//MachineLearning//spam//SpamFilter//data//train//spam164.txt";
 	
 	public static void main(String[] args) throws Exception{ 
 		//path = args[0];
@@ -165,26 +165,11 @@ public class Filter {
 		if(f.exists())
 		{
 			try (BufferedReader br = new BufferedReader(new FileReader(f))) {
-                String currentLine;
-                
-                while ((currentLine = br.readLine()) != null) {
-                    String [] line = currentLine.split(" ");
-                    classP[0] = Float.parseFloat(line[0]);
-                    classP[1] = Float.parseFloat(line[1]);
-                    break;
-                }
-                
+                String currentLine;                
                 while ((currentLine = br.readLine()) != null) {
                         String [] line = currentLine.split(" ");
-                        if(line[0].equals("@^@"))
-                        	break;
-                        else
-                        vocabularySubj.put(line[0], (new Double[] {Double.parseDouble(line[1]), Double.parseDouble(line[2])}));
+                        vocabularySubj.put(line[0], (new Double[] {Double.parseDouble(line[1]), Double.parseDouble(line[2])})); //neat code
                     }
-                while ((currentLine = br.readLine()) != null) {
-                    String [] line = currentLine.split(" ");
-                    vocabulary.put(line[0], (new Double[] {Double.parseDouble(line[1]), Double.parseDouble(line[2])}));
-                }
                   
                 }
          catch (IOException e) {

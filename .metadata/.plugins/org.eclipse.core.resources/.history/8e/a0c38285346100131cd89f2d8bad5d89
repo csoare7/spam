@@ -37,7 +37,7 @@ public class Filter {
 	public static HashMap < String, Double[] > vocabularySubj = new HashMap<String, Double[]>();
 	
 	public static String path = "D://UNI//MachineLearning//spam//SpamFilter//data//train";
-	public static String file = "D://UNI//MachineLearning//spam//SpamFilter//data//sampletest.tar//1.txt";
+	public static String file = "D://UNI//MachineLearning//spam//SpamFilter//data//sampletrain.tar//1.txt";
 	
 	public static void main(String[] args) throws Exception{ 
 		//path = args[0];
